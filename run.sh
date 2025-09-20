@@ -1,16 +1,14 @@
 make
-echo "Benchmark:"
-./build/benchmark 1000
-echo "Main:"
-./build/main 1000
-
-if diff -q ./result/benchmark_res.txt ./result/main_res.txt >/dev/null; then
-    echo "no difference"
-else
-    code=$?
-    if [ $code -eq 1 ]; then
-        echo "differences found"
-    else
-        echo "diff error (code=2)"
-    fi
-fi
+N=$1
+echo "baseline:"
+./build/baseline $N
+echo "1d_array:"
+./build/1d_array $N
+echo "omp_naive:"
+./build/omp_naive $N
+echo "omp_1d_array:"
+./build/omp_1d_array $N
+echo "loop_interchange:"
+./build/loop_interchange $N
+echo "omp_loop_interchange:"
+./build/omp_loop_interchange $N

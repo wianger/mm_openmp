@@ -1,4 +1,4 @@
-#include <fstream>
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -13,15 +13,14 @@ double timestamp() {
   return tv.tv_sec + 1e-6 * tv.tv_usec;
 }
 
-void mm(float a, float b, float **A, float **B, float **C) {
+void mm(float a, float b, float *A, float *B, float *C) {
   for (int j = 0; j < N; j++) {
     for (int i = 0; i < N; i++) {
-      C[i][j] += b * C[i][j];
       float tmp = 0;
       for (int k = 0; k < N; k++) {
-        tmp += A[i][k] * B[k][j];
+        tmp += A[i * N + k] * B[k * N + j];
       }
-      C[i][j] += tmp * a;
+      C[i * N + j] += tmp * a;
     }
   }
 }
@@ -32,38 +31,34 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   N = strtoull(argv[1], NULL, 10);
-  float **A = new float *[N];
-  float **B = new float *[N];
-  float **C = new float *[N];
-  for (int i = 0; i < N; i++) {
-    A[i] = new float[N];
-    B[i] = new float[N];
-    C[i] = new float[N];
-  }
+  float *A = new float[N * N];
+  float *B = new float[N * N];
+  float *C = new float[N * N];
+
   float a = 0.5, b = 0.3;
   for (int i = 0; i < N; i++) {
     for (int j = 0; j < N; j++) {
-      A[i][j] = (float)rand() / (float)(RAND_MAX / a);
-      B[i][j] = (float)rand() / (float)(RAND_MAX / a);
-      C[i][j] = 0;
+      A[i * N + j] = (float)rand() / (float)(RAND_MAX / a);
+      B[i * N + j] = (float)rand() / (float)(RAND_MAX / a);
+      C[i * N + j] = 0;
     }
   }
 
   for (int j = 0; j < N; j++) {
     for (int i = 0; i < N; i++) {
-      C[i][j] += b * C[i][j];
+      C[i * N + j] += b * C[i * N + j];
       float tmp = 0;
       for (int k = 0; k < N; k++) {
         // C[i][j] += a*A[i][k]*B[k][j];
-        tmp += A[i][k] * B[k][j];
+        tmp += A[i * N + k] * B[k * N + j];
       }
-      C[i][j] += tmp * a;
+      C[i * N + j] += tmp * a;
     }
   }
 
   for (int j = 0; j < N; j++) {
     for (int i = 0; i < N; i++) {
-      C[i][j] = 0;
+      C[i * N + j] = 0;
     }
   }
 
@@ -80,15 +75,6 @@ int main(int argc, char *argv[]) {
   printf("GFLOPS/s=%lf\n", gflopsPerSecond);
   printf("GFLOPS=%lf\n", flops / (1000000000));
   printf("time(s)=%lf\n", time);
-
-  fstream outfile("./result/benchmark_res.txt", ios::out);
-  for (int i = 0; i < N; i++) {
-    for (int j = 0; j < N; j++) {
-      outfile << C[i][j] << " ";
-    }
-    outfile << "\n";
-  }
-  outfile.close();
 
   delete[] A;
   delete[] B;

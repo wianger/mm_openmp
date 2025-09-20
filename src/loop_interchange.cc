@@ -1,4 +1,3 @@
-#include <fstream>
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,15 +14,12 @@ double timestamp() {
 }
 
 void mm(float a, float b, float *A, float *B, float *C) {
-#pragma omp parallel for collapse(2) schedule(dynamic)
-  for (int j = 0; j < N; j++) {
-    for (int i = 0; i < N; i++) {
-      C[i * N + j] += b * C[i * N + j];
-      float tmp = 0;
-      for (int k = 0; k < N; k++) {
-        tmp += A[i * N + k] * B[k * N + j];
+  for (int i = 0; i < N; i++) {
+    for (int k = 0; k < N; k++) {
+      const float a_ik = a * A[i * N + k];
+      for (int j = 0; j < N; j++) {
+        C[i * N + j] += a_ik * B[k * N + j];
       }
-      C[i * N + j] += tmp * a;
     }
   }
 }
@@ -78,15 +74,6 @@ int main(int argc, char *argv[]) {
   printf("GFLOPS/s=%lf\n", gflopsPerSecond);
   printf("GFLOPS=%lf\n", flops / (1000000000));
   printf("time(s)=%lf\n", time);
-
-  fstream outfile("./result/main_res.txt", ios::out);
-  for (int i = 0; i < N; i++) {
-    for (int j = 0; j < N; j++) {
-      outfile << C[i * N + j] << " ";
-    }
-    outfile << "\n";
-  }
-  outfile.close();
 
   delete[] A;
   delete[] B;
