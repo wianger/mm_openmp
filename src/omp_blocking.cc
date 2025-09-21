@@ -6,6 +6,7 @@
 
 unsigned long long N;
 unsigned long long ITERATIONS;
+constexpr unsigned long long block_size = 64;
 using namespace std;
 
 double timestamp() {
@@ -16,11 +17,17 @@ double timestamp() {
 
 void mm(float a, float b, float *A, float *B, float *C) {
 #pragma omp parallel for schedule(static)
-  for (int i = 0; i < N; i++) {
-    for (int k = 0; k < N; k++) {
-      const float a_ik = a * A[i * N + k];
-      for (int j = 0; j < N; j++) {
-        C[i * N + j] += a_ik * B[k * N + j];
+  for (int i0 = 0; i0 < N; i0 += block_size) {
+    for (int k0 = 0; k0 < N; k0 += block_size) {
+      for (int j0 = 0; j0 < N; j0 += block_size) {
+        for (int i = i0; i < std::min(i0 + block_size, N); i++) {
+          for (int k = k0; k < std::min(k0 + block_size, N); k++) {
+            const float a_ik = a * A[i * N + k];
+            for (int j = j0; j < std::min(j0 + block_size, N); j++) {
+              C[i * N + j] += a_ik * B[k * N + j];
+            }
+          }
+        }
       }
     }
   }
@@ -79,7 +86,7 @@ int main(int argc, char *argv[]) {
   printf("time(s)=%lf\n", time);
 
   fstream result_file("./result/result.csv", ios::app);
-  result_file << "omp_loop_interchange," << N << "," << gflopsPerSecond << ","
+  result_file << "omp_blocking," << N << "," << gflopsPerSecond << ","
               << flops / (1000000000) << "," << time << "\n";
   result_file.close();
 

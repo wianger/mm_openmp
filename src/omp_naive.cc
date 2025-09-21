@@ -1,10 +1,11 @@
+#include <fstream>
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 
 unsigned long long N;
-#define ITERATIONS 10
+unsigned long long ITERATIONS;
 using namespace std;
 
 double timestamp() {
@@ -27,11 +28,12 @@ void mm(float a, float b, float **A, float **B, float **C) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <matrix_size>\n", argv[0]);
+  if (argc != 3) {
+    fprintf(stderr, "Usage: %s <matrix_size> <iterations>\n", argv[0]);
     return 1;
   }
   N = strtoull(argv[1], NULL, 10);
+  ITERATIONS = strtoull(argv[2], NULL, 10);
   float **A = new float *[N];
   float **B = new float *[N];
   float **C = new float *[N];
@@ -80,6 +82,11 @@ int main(int argc, char *argv[]) {
   printf("GFLOPS/s=%lf\n", gflopsPerSecond);
   printf("GFLOPS=%lf\n", flops / (1000000000));
   printf("time(s)=%lf\n", time);
+
+  fstream result_file("./result/result.csv", ios::app);
+  result_file << "omp_naive," << N << "," << gflopsPerSecond << ","
+              << flops / (1000000000) << "," << time << "\n";
+  result_file.close();
 
   delete[] A;
   delete[] B;
