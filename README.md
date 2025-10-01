@@ -15,8 +15,8 @@ CPU: 13th Gen Intel(R) Core(TM) i9-13900HX (8 P-cores + 16 E-cores, 32 Threads, 
 操作系统: Windows 11 (via PowerShell)
 编译器: g++ (MinGW-w64)
 并行库: OpenMP
->> 理论峰值 GFLOPS/s = P-core 频率 (GHz) × P-core 数量 × 每周期单精度浮点运算次数
->> $ \text{理论峰值} = 5.40 GHz × 8 cores × 32 = 1382.4 GFLOPS/s $
+> 理论峰值 GFLOPS/s = P-core 频率 (GHz) × P-core 数量 × 每周期单精度浮点运算次数
+> $ \text{理论峰值} = 5.40 GHz × 8 cores × 32 = 1382.4 GFLOPS/s $
 ## 实验原理与方法
 本次实验实现并评估了以下几种算法：
 Baseline: 标准的三重 i-j-k 循环，作为性能基准。
