@@ -13,5 +13,6 @@ $(TARGETDIR)/%: $(SRCDIR)/%.cc
 
 clean:
 	rm -rf $(TARGETDIR)
+	rm -f result/*.png result*.pdf
 
 .PHONY: all clean
