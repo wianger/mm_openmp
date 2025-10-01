@@ -39,7 +39,3 @@ omp_blocking 算法的性能未达到理论预期，甚至不如简单的 omp_lo
 ``` powershell
 ./run.bat N ITERATIONS
 ```
-
-
-
-```
