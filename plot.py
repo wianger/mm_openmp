@@ -31,61 +31,57 @@ plt.rcParams["mathtext.fontset"] = "stix"
 # 读取数据
 data = pd.read_csv("./result/result.csv")
 
-# 分离串行和并行算法
-serial_algorithms = ["1d_array", "baseline", "blocking", "loop_interchange"]
-parallel_algorithms = [
+algorithms = [
+    "1d_array",
+    "baseline",
+    "blocking",
+    "loop_interchange",
     "omp_1d_array",
     "omp_blocking",
     "omp_loop_interchange",
     "omp_naive",
+    "openblas",
 ]
 
-# 创建颜色映射
-colors_serial = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
-colors_parallel = ["#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
+colors = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+]
 
+# 创建图形
 n_values = sorted(data["N"].unique())
-fig, ax1 = plt.subplots(1, 1)
+fig, ax = plt.subplots(1, 1)
 
-for i, algo in enumerate(serial_algorithms):
+# 绘制串行算法性能
+for i, algo in enumerate(algorithms):
     algo_data = data[data["algorithm_type"] == algo]
-    ax1.loglog(
+    ax.loglog(
         algo_data["N"],
         algo_data["GFLOPS/s"],
         marker="o",
         markersize=6,
         linewidth=2,
-        color=colors_serial[i],
+        color=colors[i],
         label=algo,
     )
-ax1.set_ylabel("GFLOPS/s", fontsize=12)
-ax1.set_title("Serial Algorithms Performance", fontsize=14, pad=15)
-ax1.grid(True, which="both", linestyle="--", alpha=0.4)
-ax1.legend(frameon=True, fancybox=True, shadow=True, ncol=2)
-ax1.set_xticks(n_values)
-ax1.get_xaxis().set_major_formatter(ScalarFormatter())
-plt.savefig("./result/serial_algorithms_performance.png")
-plt.savefig("./result/serial_algorithms_performance.pdf")
-
-fig, ax2 = plt.subplots(1, 1)
-for i, algo in enumerate(parallel_algorithms):
-    algo_data = data[data["algorithm_type"] == algo]
-    ax2.loglog(
-        algo_data["N"],
-        algo_data["GFLOPS/s"],
-        marker="s",
-        markersize=6,
-        linewidth=2,
-        color=colors_parallel[i],
-        label=algo.replace("omp_", ""),
-    )
-
-ax2.set_ylabel("GFLOPS/s", fontsize=12)
-ax2.set_xlabel("Matrix Size (N)", fontsize=12)
-ax2.set_title("Parallel (OpenMP) Algorithms Performance", fontsize=14, pad=15)
-ax2.grid(True, which="both", linestyle="--", alpha=0.4)
-ax2.legend(frameon=True, fancybox=True, shadow=True, ncol=2)
-ax2.set_xticks(n_values)
-ax2.get_xaxis().set_major_formatter(ScalarFormatter())
-plt.savefig("./result/parallel_algorithms_performance.png")
-plt.savefig("./result/parallel_algorithms_performance.pdf")
+ax.set_ylabel("GFLOPS/s", fontsize=12)
+ax.set_title("Algorithms Performance", fontsize=14, pad=15)
+ax.grid(True, which="both", linestyle="--", alpha=0.4)
+ax.legend(
+    loc="center left",
+    bbox_to_anchor=(1, 0.5),
+    frameon=True,
+    fancybox=True,
+    shadow=True,
+)
+ax.set_xticks(n_values)
+ax.get_xaxis().set_major_formatter(ScalarFormatter())
+plt.savefig("./result/algorithms_performance.png")
+plt.savefig("./result/algorithms_performance.pdf")

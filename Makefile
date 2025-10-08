@@ -1,5 +1,6 @@
 CXX = g++
 CXXFLAGS = -fopenmp
+LIBS = -lopenblas
 SRCDIR = src
 TARGETDIR = build
 SRCS = $(wildcard $(SRCDIR)/*.cc)
@@ -9,7 +10,7 @@ all: $(TARGET)
 
 $(TARGETDIR)/%: $(SRCDIR)/%.cc
 	@mkdir -p $(TARGETDIR)
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBS)
 
 clean:
 	rm -rf $(TARGETDIR)
